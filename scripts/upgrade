@@ -26,6 +26,23 @@ ynh_setup_source --dest_dir="$tempdir"
 _ynh_apt_install --allow-downgrades "$tempdir/emby-server.deb"
 
 #=================================================
+# UPDATE CONFIGURATION
+#=================================================
+ynh_script_progression "Updating $app's configuration..."
+
+# Update system.xml if needed
+lang="${YNH_APP_ARG_LANG:-en}"
+country="${YNH_APP_ARG_COUNTRY:-US}"
+
+sed -i "s|__PORT__|8096|g" /var/cache/yunohost/app_tmp_work_dirs/app_*/conf/system.xml
+sed -i "s|__LANG__|$lang|g" /var/cache/yunohost/app_tmp_work_dirs/app_*/conf/system.xml
+sed -i "s|__COUNTRY__|$country|g" /var/cache/yunohost/app_tmp_work_dirs/app_*/conf/system.xml
+
+cp /var/cache/yunohost/app_tmp_work_dirs/app_*/conf/system.xml /var/lib/emby/config/system.xml
+chown emby-server:emby-server /var/lib/emby/config/system.xml
+chmod 640 /var/lib/emby/config/system.xml
+
+#=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
 #=================================================
 ynh_script_progression "Upgrading system configurations related to $app..."
